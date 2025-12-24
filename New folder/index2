@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NovaHR Investor Nurture Playbook</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8FAFC;
+            color: #1E293B;
+            scroll-behavior: smooth;
+        }
+
+        /* Chart Container Styling */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 380px;
+            max-height: 450px;
+        }
+
+        .nav-item.active {
+            background-color: #EEF2FF;
+            color: #4F46E5;
+            border-right: 3px solid #4F46E5;
+        }
+
+        .template-btn.active {
+            border-color: #4F46E5;
+            background-color: #EEF2FF;
+            color: #4338CA;
+        }
+
+        .editor-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        .editor-scroll::-webkit-scrollbar-track {
+            background: #F1F5F9;
+        }
+        .editor-scroll::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 4px;
+        }
+
+        .conviction-threshold {
+            border-top: 2px dashed #10B981;
+            position: absolute;
+            width: 100%;
+            top: 20%;
+            z-index: 10;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="h-screen flex overflow-hidden">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-white border-r border-slate-200 hidden md:flex flex-col z-20">
+        <div class="p-6 border-b border-slate-100">
+            <h1 class="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+                <i class="fa-solid fa-rocket text-indigo-600"></i> NovaHR <span class="text-slate-400 font-normal">Playbook</span>
+            </h1>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2">Investor Nurture OS</p>
+        </div>
+        
+        <nav class="flex-1 py-4 space-y-1 overflow-y-auto">
+            <button onclick="scrollToSection('hero')" class="nav-item active w-full text-left px-6 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+                <i class="fa-solid fa-bullseye w-5"></i> Objective
+            </button>
+            <button onclick="scrollToSection('philosophy')" class="nav-item w-full text-left px-6 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+                <i class="fa-solid fa-chart-line w-5"></i> The Philosophy
+            </button>
+            <button onclick="scrollToSection('strategy')" class="nav-item w-full text-left px-6 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+                <i class="fa-solid fa-chess w-5"></i> Strategic Pillars
+            </button>
+            <button onclick="scrollToSection('lab')" class="nav-item w-full text-left px-6 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+                <i class="fa-solid fa-flask w-5"></i> Outreach Lab
+            </button>
+            <button onclick="scrollToSection('workflow')" class="nav-item w-full text-left px-6 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+                <i class="fa-solid fa-list-check w-5"></i> Campaign Workflow
+            </button>
+        </nav>
+
+        <!-- Key Metrics Widget -->
+        <div class="p-4 bg-slate-50 border-t border-slate-200">
+            <h3 class="text-[10px] font-black uppercase text-slate-400 mb-3 tracking-widest">Key Narrative Data</h3>
+            <div class="space-y-3">
+                <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                    <p class="text-xs text-slate-500">Gross Margin</p>
+                    <p class="text-lg font-bold text-indigo-600">88%</p>
+                </div>
+                <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                    <p class="text-xs text-slate-500">2026 Revenue Target</p>
+                    <p class="text-lg font-bold text-emerald-600">$5.08M</p>
+                </div>
+                <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                    <p class="text-xs text-slate-500">TAM (Egypt/KSA)</p>
+                    <p class="text-lg font-bold text-slate-800">$2.7B</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main id="main-scroll" class="flex-1 overflow-y-auto bg-slate-50/50 relative">
+        
+        <!-- Header -->
+        <header class="sticky top-0 bg-white/80 backdrop-blur-md border-b border-slate-200 z-10 px-8 py-4 flex justify-between items-center">
+            <h2 class="text-sm font-bold text-slate-700">Investor Nurture Playbook</h2>
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="text-xs font-medium text-slate-500">Status: Active Round ($2M Seed)</span>
+            </div>
+        </header>
+
+        <div class="max-w-5xl mx-auto p-8 space-y-16">
+
+            <!-- Hero: Objective -->
+            <section id="hero" class="fade-in scroll-mt-24">
+                <div class="bg-gradient-to-r from-slate-900 to-slate-800 rounded-3xl p-8 text-white shadow-xl">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <h2 class="text-3xl font-bold mb-4">From "Interested" to "Committed"</h2>
+                            <p class="text-slate-300 text-lg leading-relaxed max-w-2xl">
+                                The objective is to demonstrate consistent execution, transparency, and undeniable momentum across the Egypt-KSA corridor.
+                            </p>
+                        </div>
+                        <div class="hidden lg:block text-right">
+                            <div class="text-4xl font-bold text-indigo-400 mb-1">Lines</div>
+                            <div class="text-sm text-slate-400 uppercase tracking-widest">Not Dots</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section I: Philosophy -->
+            <section id="philosophy" class="fade-in scroll-mt-24">
+                <div class="mb-8 border-l-4 border-indigo-600 pl-4">
+                    <h2 class="text-2xl font-bold text-slate-900">I. The Philosophy: Trajectory > Snapshots</h2>
+                    <p class="text-slate-500 mt-1 italic">Investors don't bet on where you are today; they bet on your slope.</p>
+                </div>
+                
+                <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-8 overflow-hidden relative">
+                    <div class="flex flex-col lg:flex-row gap-8">
+                        <!-- Custom Momentum Visualization -->
+                        <div class="flex-1 space-y-6">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-sm font-bold text-slate-700 uppercase tracking-widest">Momentum Stacking Model</h3>
+                                <div class="flex gap-4">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-3 h-3 rounded bg-indigo-500"></div>
+                                        <span class="text-[10px] font-bold text-slate-400 uppercase">Lines (Compounded)</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-3 h-3 rounded bg-slate-300"></div>
+                                        <span class="text-[10px] font-bold text-slate-400 uppercase">Dots (Isolated)</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="chart-container">
+                                <canvas id="momentumChart"></canvas>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                    <h4 class="text-xs font-bold text-slate-400 uppercase mb-2 italic">Scenario A: The "Dots" Trap</h4>
+                                    <p class="text-xs text-slate-600 leading-relaxed">
+                                        Sending one email or having one call creates a "dot." Without follow-up, conviction decays as the investor moves to other deals.
+                                    </p>
+                                </div>
+                                <div class="p-4 bg-indigo-50 rounded-2xl border border-indigo-100">
+                                    <h4 class="text-xs font-bold text-indigo-400 uppercase mb-2 italic">Scenario B: The "Line" Strategy</h4>
+                                    <p class="text-xs text-indigo-700 leading-relaxed font-medium">
+                                        Monthly updates stack. Trust compounds. Each touchpoint reinforces the last, eventually crossing the "Investment Threshold."
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sidebar Concept -->
+                        <div class="lg:w-72 bg-slate-900 rounded-3xl p-6 text-white flex flex-col">
+                            <h4 class="font-bold text-lg mb-6">The Rules of the Line:</h4>
+                            <ul class="space-y-6 flex-1">
+                                <li class="flex gap-3">
+                                    <div class="w-6 h-6 rounded-full bg-indigo-500 flex-shrink-0 flex items-center justify-center text-[10px] font-bold">1</div>
+                                    <div>
+                                        <p class="text-xs font-bold mb-1">Prove Velocity</p>
+                                        <p class="text-[10px] text-slate-400 leading-relaxed">Show you hit 2026 targets faster than predicted.</p>
+                                    </div>
+                                </li>
+                                <li class="flex gap-3">
+                                    <div class="w-6 h-6 rounded-full bg-indigo-500 flex-shrink-0 flex items-center justify-center text-[10px] font-bold">2</div>
+                                    <div>
+                                        <p class="text-xs font-bold mb-1">Stack MOATs</p>
+                                        <p class="text-[10px] text-slate-400 leading-relaxed">Every update adds a brick to your localized compliance barrier.</p>
+                                    </div>
+                                </li>
+                                <li class="flex gap-3">
+                                    <div class="w-6 h-6 rounded-full bg-emerald-500 flex-shrink-0 flex items-center justify-center text-[10px] font-bold">3</div>
+                                    <div>
+                                        <p class="text-xs font-bold mb-1">Cross the Line</p>
+                                        <p class="text-[10px] text-slate-400 leading-relaxed">Once conviction exceeds the threshold, the check is signed.</p>
+                                    </div>
+                                </li>
+                            </ul>
+                            <div class="mt-8 pt-6 border-t border-slate-800">
+                                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 text-center">Narrative Stack</p>
+                                <div class="flex justify-between items-end gap-1 px-4">
+                                    <div class="bg-indigo-900 w-full h-4 rounded-sm"></div>
+                                    <div class="bg-indigo-700 w-full h-8 rounded-sm"></div>
+                                    <div class="bg-indigo-50 w-full h-12 rounded-sm"></div>
+                                    <div class="bg-indigo-400 w-full h-16 rounded-sm"></div>
+                                    <div class="bg-emerald-400 w-full h-20 rounded-sm animate-pulse"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section II: Strategic Pillars -->
+            <section id="strategy" class="fade-in scroll-mt-24">
+                <div class="mb-6 border-l-4 border-emerald-500 pl-4">
+                    <h2 class="text-2xl font-bold text-slate-900">II. Strategic Objectives</h2>
+                    <p class="text-slate-500">Three distinct psychological missions for your content.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Pillar 1 -->
+                    <div class="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-md transition-shadow group">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold uppercase">Target: Cold</span>
+                            <h3 class="font-bold text-slate-800">Creating Interest</h3>
+                        </div>
+                        <p class="text-sm text-slate-600 mb-4 min-h-[60px]">
+                            Share "Alpha". Position NovaHR as the authority on the $2.7B TAM and Egypt's 34.2M workforce.
+                        </p>
+                        <div class="text-xs bg-slate-50 p-3 rounded border border-slate-100 group-hover:bg-indigo-50 group-hover:border-indigo-100 transition-colors">
+                            <strong>Insight:</strong> Show them a localized compliance moat they didn't realize existed.
+                        </div>
+                    </div>
+
+                    <!-- Pillar 2 -->
+                    <div class="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-md transition-shadow group">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="px-2 py-1 bg-amber-100 text-amber-700 rounded text-xs font-bold uppercase">Target: Warm</span>
+                            <h3 class="font-bold text-slate-800">Converting Interest</h3>
+                        </div>
+                        <p class="text-sm text-slate-600 mb-4 min-h-[60px]">
+                            Highlight Round Momentum ($2M Seed Status) and the 88% Gross Margins as high-signal triggers.
+                        </p>
+                        <div class="text-xs bg-slate-50 p-3 rounded border border-slate-100 group-hover:bg-amber-50 group-hover:border-amber-100 transition-colors">
+                            <strong>Focus:</strong> KSA Entity Launch & soft-commits as "FOMO" drivers.
+                        </div>
+                    </div>
+
+                    <!-- Pillar 3 -->
+                    <div class="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-md transition-shadow group">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="px-2 py-1 bg-slate-100 text-slate-700 rounded text-xs font-bold uppercase">Target: Active</span>
+                            <h3 class="font-bold text-slate-800">Maintaining Momentum</h3>
+                        </div>
+                        <p class="text-sm text-slate-600 mb-4 min-h-[60px]">
+                            Even in "quiet" months, consistency is a de-risking signal. Showcase NovaERP & NovaTalent updates.
+                        </p>
+                        <div class="text-xs bg-slate-50 p-3 rounded border border-slate-100 group-hover:bg-emerald-50 group-hover:border-emerald-100 transition-colors">
+                            <strong>Logic:</strong> A boring monthly 5% growth is better than an exciting quarterly ghosting.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section III & IV: The Outreach Lab -->
+            <section id="lab" class="fade-in scroll-mt-24">
+                <div class="mb-6 flex justify-between items-end border-l-4 border-indigo-600 pl-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900">III. & IV. The Outreach Lab</h2>
+                        <p class="text-slate-500">Copy-Paste templates for immediate execution.</p>
+                    </div>
+                    <div class="hidden md:block">
+                        <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full"><i class="fa-solid fa-bolt"></i> Ready to Use</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden flex flex-col md:flex-row min-h-[600px]">
+                    <!-- Template Sidebar -->
+                    <div class="w-full md:w-1/3 bg-slate-50 border-r border-slate-200 p-4 flex flex-col gap-2">
+                        <p class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2 pl-2">Outreach</p>
+                        <button onclick="loadTemplate('teaserA')" id="btn-teaserA" class="template-btn active w-full text-left p-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-white transition-all border border-transparent">
+                            Standard Teaser (Comprehensive)
+                        </button>
+                        <button onclick="loadTemplate('teaserB')" id="btn-teaserB" class="template-btn w-full text-left p-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-white transition-all border border-transparent">
+                            The "Executive" (Short)
+                        </button>
+
+                        <p class="text-[10px] font-black uppercase text-slate-400 tracking-widest mt-4 mb-2 pl-2">Newsletters</p>
+                        <button onclick="loadTemplate('newsStruct')" id="btn-newsStruct" class="template-btn w-full text-left p-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-white transition-all border border-transparent">
+                            Monthly Structure
+                        </button>
+                        <button onclick="loadTemplate('newsOct')" id="btn-newsOct" class="template-btn w-full text-left p-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-white transition-all border border-transparent">
+                            Example (Oct: KSA Expansion)
+                        </button>
+                        <button onclick="loadTemplate('newsJan')" id="btn-newsJan" class="template-btn w-full text-left p-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-white transition-all border border-transparent">
+                            Year-End: Jan 2026 Vision
+                        </button>
+                    </div>
+
+                    <!-- Template Editor -->
+                    <div class="flex-1 p-6 flex flex-col bg-white">
+                        <div class="flex justify-between items-center mb-4 pb-4 border-b border-slate-100">
+                            <div>
+                                <h3 id="template-title" class="font-bold text-slate-800">Comprehensive Teaser</h3>
+                                <p id="template-desc" class="text-xs text-slate-500">For initial email outreach with full context.</p>
+                            </div>
+                            <button onclick="copyToClipboard()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 flex items-center gap-2">
+                                <i class="fa-regular fa-copy"></i> Copy Text
+                            </button>
+                        </div>
+                        
+                        <div class="relative flex-1 bg-slate-50 rounded-lg border border-slate-200 overflow-hidden">
+                            <textarea id="template-content" class="w-full h-full p-6 text-sm font-mono text-slate-700 bg-transparent resize-none focus:outline-none editor-scroll" readonly></textarea>
+                            <div class="absolute bottom-4 right-4 text-[10px] text-slate-400 bg-white px-2 py-1 rounded border border-slate-200 shadow-sm pointer-events-none uppercase font-bold tracking-widest">
+                                contains Placeholders [ ]
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section V: Campaign Workflow -->
+            <section id="workflow" class="fade-in scroll-mt-24 pb-20">
+                <div class="mb-8 border-l-4 border-slate-800 pl-4">
+                    <h2 class="text-2xl font-bold text-slate-900">V. Campaign Execution Engine</h2>
+                    <p class="text-slate-500">The expert post-send workflow to convert engagement into checks.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <!-- Workflow Steps -->
+                    <div class="lg:col-span-8 space-y-12">
+                        
+                        <!-- Phase 1: Preparation -->
+                        <div class="flex gap-6 group">
+                            <div class="flex flex-col items-center">
+                                <div class="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold shadow-lg z-10 group-hover:scale-110 transition-transform">1</div>
+                                <div class="w-px h-full bg-slate-200 mt-2"></div>
+                            </div>
+                            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex-1">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h4 class="font-bold text-slate-900 text-lg">Pre-Send Audit & Segmenting</h4>
+                                    <span class="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2 py-1 rounded uppercase tracking-wider">T-Minus 2 Hours</span>
+                                </div>
+                                <p class="text-sm text-slate-600 mb-4">Before hitting send, verify your audience tiers. Don't blast everyone with the same intent level.</p>
+                                <ul class="text-xs text-slate-500 space-y-2">
+                                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500"></i> <strong>Tier 1 (High Intent):</strong> Investors in active DD or post-pitch.</li>
+                                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500"></i> <strong>Tier 2 (Nurture):</strong> Investors who said "too early" or "keep me posted."</li>
+                                    <li class="flex items-center gap-2"><i class="fa-solid fa-link text-indigo-400"></i> <strong>The Multiples Sync:</strong> Request unique DocSend links for each Tier.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Phase 2: The Nudge -->
+                        <div class="flex gap-6 group">
+                            <div class="flex flex-col items-center">
+                                <div class="w-10 h-10 rounded-full bg-white border-2 border-indigo-600 text-indigo-600 flex items-center justify-center font-bold shadow-sm z-10 group-hover:scale-110 transition-transform">2</div>
+                                <div class="w-px h-full bg-slate-200 mt-2"></div>
+                            </div>
+                            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex-1">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h4 class="font-bold text-slate-900 text-lg">The "2-Hour Forward" Protocol</h4>
+                                    <span class="text-[10px] font-black text-amber-600 bg-amber-50 px-2 py-1 rounded uppercase tracking-wider">Send +2h</span>
+                                </div>
+                                <p class="text-sm text-slate-600 mb-4">Turn a mass update into a personal touchpoint for your Top 10 prospects.</p>
+                                <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 italic text-xs text-slate-500 mb-4">
+                                    "Hi [Name], just sent out our wider update. Thought our progress on the KSA Entity setup (Section 2) would be particularly relevant given our last chat. Would love your take."
+                                </div>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest"><i class="fa-solid fa-lightbulb text-amber-400 mr-1"></i> Recommendation: Send these individually via LinkedIn or Personal Email.</p>
+                            </div>
+                        </div>
+
+                        <!-- Phase 3: The Response -->
+                        <div class="flex gap-6 group">
+                            <div class="flex flex-col items-center">
+                                <div class="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold shadow-lg z-10 group-hover:scale-110 transition-transform">3</div>
+                            </div>
+                            <div class="bg-slate-900 p-6 rounded-2xl shadow-xl flex-1 text-white border border-slate-800">
+                                <div class="flex justify-between items-start mb-4">
+                                    <h4 class="font-bold text-indigo-400 text-lg">The 24-Hour Blitz</h4>
+                                    <span class="text-[10px] font-black text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded uppercase tracking-wider">Real-Time</span>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="space-y-3">
+                                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Signal Monitoring</p>
+                                        <div class="flex items-start gap-2">
+                                            <div class="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5"></div>
+                                            <p class="text-xs text-slate-300">Investor opens link <strong>>2 times</strong> within 12 hours.</p>
+                                        </div>
+                                        <div class="flex items-start gap-2">
+                                            <div class="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5"></div>
+                                            <p class="text-xs text-slate-300">Spends <strong>>3 minutes</strong> on Financials or Moat slides.</p>
+                                        </div>
+                                    </div>
+                                    <div class="space-y-3">
+                                        <p class="text-xs font-bold text-emerald-400 uppercase tracking-widest">Action Required</p>
+                                        <p class="text-xs text-slate-300">Call or Message within 24 hours. Don't wait for them to reach out.</p>
+                                        <div class="p-2 bg-white/5 rounded text-[10px] italic text-slate-400">
+                                            "Hey [Name], saw you were checking out the deck again—any questions on the KSA GTM plan?"
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Sidebar Recommendations -->
+                    <div class="lg:col-span-4 space-y-6">
+                        <div class="bg-indigo-600 rounded-3xl p-6 text-white shadow-xl relative overflow-hidden group">
+                            <div class="absolute -right-8 -bottom-8 opacity-10 group-hover:scale-110 transition-transform duration-500">
+                                <i class="fa-solid fa-trophy text-9xl"></i>
+                            </div>
+                            <h4 class="font-bold text-lg mb-4">Expert Recs:</h4>
+                            <ul class="space-y-4 relative z-10">
+                                <li class="space-y-1">
+                                    <p class="text-xs font-bold text-indigo-200 uppercase tracking-tighter">Micro-Commitments</p>
+                                    <p class="text-xs text-white/80 leading-relaxed">Ask for specific advice (e.g., KSA hiring). An investor who helps is 3x more likely to invest.</p>
+                                </li>
+                                <li class="space-y-1">
+                                    <p class="text-xs font-bold text-indigo-200 uppercase tracking-tighter">Timing Mastery</p>
+                                    <p class="text-xs text-white/80 leading-relaxed">Best send times: Tuesday or Wednesday at 9:00 AM (Investor Local Time).</p>
+                                </li>
+                                <li class="space-y-1">
+                                    <p class="text-xs font-bold text-indigo-200 uppercase tracking-tighter">CRM Hygiene</p>
+                                    <p class="text-xs text-white/80 leading-relaxed">Log every open and nudge in the Fundraising Portal immediately. Keep the 'Line' visible.</p>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm border-t-4 border-t-emerald-500">
+                            <h4 class="font-bold text-slate-900 mb-3 text-sm italic">"The Nurture Goal"</h4>
+                            <p class="text-xs text-slate-500 leading-relaxed">
+                                By the 4th update, an investor shouldn't be asking "if" you can scale—they should be asking "how much room is left in the round." 
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-slate-800 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-3 z-50">
+        <i class="fa-solid fa-check-circle text-emerald-400"></i>
+        <span class="text-sm font-medium">Copied to clipboard!</span>
+    </div>
+
+    <script>
+        const templates = {
+            teaserA: {
+                title: "Standard Teaser (Comprehensive)",
+                desc: "Full strategic context for cold or secondary outreach.",
+                content: `Subject: NovaHR Seed: 88% Gross Margins & KSA/Egypt Market Mastery\n\n"Hi [Name],\n\n[Context: e.g., "Saw your focus on MENA B2B SaaS."]\n\nI’m Mohamed, the founder of NovaHR. We are building the localized HR & ERP infrastructure for the 1.9M+ SMEs in Egypt and Saudi Arabia—a market global incumbents cannot effectively serve due to complex local labor laws.\n\nKey Metrics:\n- Traction: Projected $5.08M Revenue for 2026 with a path to $22M+ by 2030.\n- Efficiency: Operating at 88% Gross Profit Margins with a scalable SaaS + On-Premise hybrid model.\n- The Moat: Deep localization for Arabic labor laws and compliance—high entry barriers for international players.\n\nWe are raising a $2M Seed Round to accelerate our KSA expansion and finalize the NovaERP suite.\n\nI’d love the opportunity to share our pitch deck with you and explore if there’s alignment. Would you be open to a brief call next Tuesday or Wednesday?\n\nBest,\nMohamed Hassan"`
+            },
+            teaserB: {
+                title: "The Executive (Short)",
+                desc: "High-signal, punchy version for mobile-first readers.",
+                content: `Subject: NovaHR: $5M+ Year 1 Rev / 88% Margin / Seed Round\n\n"Hi [Name],\n\nI’m the founder of NovaHR. We’ve built the localized HR infrastructure for the Egypt/KSA corridor to capture the $2.7B SME market opportunity.\n\nThe Highlights:\n- $5.08M Revenue target (2026) with 88% Gross Profit Margins.\n- Localized compliance moat: Tailored for the 34.2M workforce in Egypt and 22.5M in KSA.\n- Seed round: Focused on rapid KSA expansion.\n\nI’d love to send over our deck and get your thoughts. Do you have 10 minutes for a call next Tuesday?\n\nBest,\nMohamed Hassan"`
+            },
+            newsStruct: {
+                title: "Standard Monthly Structure",
+                desc: "The recommended skeleton for consistent updates.",
+                content: `Subject: NovaHR Update [Month/Year]: [Key Milestone]\n\nTL;DR:\n- Metric of the Month: [e.g., KSA Entity Finalized]\n- Product: [One sentence on NovaERP Beta or NovaTalent update]\n- Round: [X]% Committed.\n\nBusiness & Traction\n[2-3 bullets on revenue, SME adoption, or high-margin growth].\n\nThe Build\n[Update on product development or KSA Go-To-Market progress].\n\nThe Ask\n[Specific request for help/advice].\n\n[DocSend Link]`
+            },
+            newsOct: {
+                title: "Example: October Update",
+                desc: "Focusing on KSA expansion progress.",
+                content: `Subject: NovaHR Update Oct: KSA Entity Launch & ERP Beta\n\n"Hi [Name],\n\nOctober was a month of deep operational setup and product validation at NovaHR.\n\nTL;DR:\n- KSA Growth: Finalized our legal entity setup in Riyadh.\n- Product: Beta launch of NovaERP for core pilot clients in Egypt.\n- Round Status: 25% of the $2M Seed is now soft-committed.\n\nTraction & Expansion\nWe remain focused on our 88% gross margin target. Egypt remains our cash-flow engine, while the KSA entity is rapidly becoming our highest-potential territory. We are on track for our $5.08M 2026 revenue target.\n\nThe Ask\nWe are refining our KSA Go-to-Market team. Could you provide a recommendation for a recruiter specializing in B2B SaaS in Riyadh, or a contact at a regional SME-focused bank?\n\n[DocSend Link]\n\nBest,\nMohamed Hassan"`
+            },
+            newsJan: {
+                title: "Special Edition: Jan 2026",
+                desc: "Vision-heavy update to close the round.",
+                content: `Subject: NovaHR 2025: $5M Revenue Target & 2026 Regional Dominance 🚀\n\n"Hi [Name],\n\nAs we start 2026, I wanted to share a concise wrap-up of NovaHR’s execution year and our strategic roadmap for the $2M Seed round. 2025 was about proving the localized model; 2026 is about dominating the regional SME market.\n\n2025: Year in Review (Execution)\n- Financials: Validated our high-margin profile (88% Gross Margin).\n- Legal & Structure: established a full presence in Riyadh and Cairo, providing a robust structure for our investors.\n- Product: NovaTalent and NovaERP modules are now servicing early SME adopters.\n\n2026: The Scale Ahead (Vision)\nOur North Star is to reach $22M+ revenue by 2030 by scaling our transaction-first model.\n\nThe Round Status (Momentum)\nWe are currently finalizing the $2M Seed round. With [X]% already soft-committed, we are looking for the final partners who align with our vision.\n\n[Link to Data Room]\n\nOnwards,\nMohamed Hassan\nCEO, NovaHR Systems"`
+            }
+        };
+
+        function loadTemplate(key) {
+            document.querySelectorAll('.template-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-' + key).classList.add('active');
+
+            const tpl = templates[key];
+            document.getElementById('template-title').innerText = tpl.title;
+            document.getElementById('template-desc').innerText = tpl.desc;
+            document.getElementById('template-content').value = tpl.content;
+        }
+
+        function copyToClipboard() {
+            const content = document.getElementById("template-content");
+            
+            // Replaced navigator.clipboard with execCommand('copy') for robust iframe support
+            content.select();
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showToast();
+                }
+            } catch (err) {
+                console.error('Copy failed', err);
+            }
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => { toast.classList.add('translate-y-20', 'opacity-0'); }, 2000);
+        }
+
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView();
+            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = Array.from(document.querySelectorAll('.nav-item')).find(btn => btn.getAttribute('onclick').includes(id));
+            if(activeBtn) activeBtn.classList.add('active');
+        }
+
+        // Initialize Momentum Chart
+        function initMomentumChart() {
+            const ctx = document.getElementById('momentumChart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['M1: Setup', 'M2: KSA Pilot', 'M3: ERP Beta', 'M4: KSA Entity', 'M5: Soft Commits', 'M6: Round Close'],
+                    datasets: [
+                        {
+                            label: 'Lines (Cumulative Trust)',
+                            type: 'line',
+                            data: [15, 35, 55, 75, 90, 110],
+                            borderColor: '#4F46E5',
+                            backgroundColor: 'rgba(79, 70, 229, 0.05)',
+                            fill: true,
+                            tension: 0.4,
+                            borderWidth: 5,
+                            pointRadius: 6,
+                            pointBackgroundColor: '#fff',
+                            pointBorderWidth: 3,
+                            zIndex: 2
+                        },
+                        {
+                            label: 'Dots (Isolated Signal)',
+                            data: [20, 10, 15, 5, 20, 10],
+                            backgroundColor: '#CBD5E1',
+                            borderRadius: 4,
+                            barThickness: 12,
+                            zIndex: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#1E293B',
+                            titleFont: { size: 12, weight: 'bold' },
+                            padding: 12,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.datasetIndex === 0 ? "Compounded Conviction: " + context.raw + "%" : "Isolated Event Impact: " + context.raw + "%";
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, display: false, max: 130 },
+                        x: { grid: { display: false }, ticks: { color: '#94A3B8', font: { size: 10, weight: 'bold' } } }
+                    }
+                },
+                plugins: [{
+                    beforeDraw: (chart) => {
+                        const ctx = chart.ctx;
+                        const yAxis = chart.scales.y;
+                        const thresholdY = yAxis.getPixelForValue(100);
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.setLineDash([5, 5]);
+                        ctx.moveTo(chart.chartArea.left, thresholdY);
+                        ctx.lineTo(chart.chartArea.right, thresholdY);
+                        ctx.strokeStyle = '#10B981';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        ctx.fillStyle = '#10B981';
+                        ctx.font = 'bold 10px Inter';
+                        ctx.fillText('INVESTMENT THRESHOLD', chart.chartArea.left + 10, thresholdY - 10);
+                        ctx.restore();
+                    }
+                }]
+            });
+        }
+
+        window.onload = function() {
+            initMomentumChart();
+            loadTemplate('teaserA');
+        };
+
+    </script>
+</body>
+</html>
+
+
