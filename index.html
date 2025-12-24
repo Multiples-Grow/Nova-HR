@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NovaHR Fundraising Operating System</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons (via unpkg for vanilla JS usage) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Chosen Palette: Slate (Neutral), Indigo (Primary/Brand), Emerald (Success/Green Light), Rose (Alert/Red Light) -->
+    <!-- Application Structure Plan: 
+         - Layout: Dashboard-style with a fixed sidebar (desktop) / top bar (mobile) and a dynamic main content area.
+         - Sections:
+           1. Mission Control: High-level philosophy ("Lines not Dots"), Roles (Push/Pull), and Objectives.
+           2. The Weekly Sprint: Interactive timeline and activity chart showing the rhythm of the week.
+           3. Strategy & Toolkit: Channel strategy steps combined with an interactive "Copy to Clipboard" template generator.
+           4. The Engine & Rules: Visual explanation of the Traffic Light system, 3-Touch Rule, and Portal definitions.
+         - Rationale: This structure moves from "Mindset" -> "Process" -> "Execution" -> "Rules", mirroring the user's flow from understanding the strategy to doing the work.
+    -->
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8FAFC; /* Slate 50 */
+        }
+
+        /* Chart Container Styling - Mandatory Requirement */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px; /* Tailwind max-w-3xl approx */
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+
+        /* Custom Scrollbar for Template Previews */
+        .template-preview::-webkit-scrollbar {
+            width: 6px;
+        }
+        .template-preview::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .template-preview::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .active-nav {
+            background-color: #EEF2FF; /* Indigo 50 */
+            color: #4338CA; /* Indigo 700 */
+            border-right: 3px solid #4338CA;
+        }
+    </style>
+</head>
+<body class="text-slate-800 h-screen flex overflow-hidden">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-white border-r border-slate-200 hidden md:flex flex-col z-10">
+        <div class="p-6 border-b border-slate-100">
+            <h1 class="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+                <i data-lucide="rocket" class="text-indigo-600"></i> NovaHR OS
+            </h1>
+            <p class="text-xs text-slate-500 mt-1">Fundraising Operating System</p>
+        </div>
+        
+        <nav class="flex-1 overflow-y-auto py-4">
+            <ul class="space-y-1">
+                <li>
+                    <button onclick="navigate('mission-control')" class="nav-item w-full text-left px-6 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors active-nav" id="nav-mission-control">
+                        <i data-lucide="layout-dashboard" class="inline-block w-4 h-4 mr-2"></i> Mission Control
+                    </button>
+                </li>
+                <li>
+                    <button onclick="navigate('weekly-sprint')" class="nav-item w-full text-left px-6 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors" id="nav-weekly-sprint">
+                        <i data-lucide="calendar-clock" class="inline-block w-4 h-4 mr-2"></i> The Weekly Sprint
+                    </button>
+                </li>
+                <li>
+                    <button onclick="navigate('strategy-toolkit')" class="nav-item w-full text-left px-6 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors" id="nav-strategy-toolkit">
+                        <i data-lucide="wrench" class="inline-block w-4 h-4 mr-2"></i> Strategy & Toolkit
+                    </button>
+                </li>
+                <li>
+                    <button onclick="navigate('engine-rules')" class="nav-item w-full text-left px-6 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors" id="nav-engine-rules">
+                        <i data-lucide="settings-2" class="inline-block w-4 h-4 mr-2"></i> Engine & Rules
+                    </button>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="p-4 bg-slate-50 border-t border-slate-200">
+            <div class="bg-indigo-600 rounded-lg p-4 text-white shadow-lg">
+                <h3 class="font-bold text-sm mb-1">Target: $2M Seed</h3>
+                <p class="text-xs opacity-90 mb-3">Keep the momentum. Build lines, not dots.</p>
+                <div class="w-full bg-indigo-800 rounded-full h-1.5">
+                    <div class="bg-indigo-300 h-1.5 rounded-full" style="width: 15%"></div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Mobile Header -->
+    <div class="md:hidden fixed top-0 w-full bg-white border-b border-slate-200 z-20 px-4 py-3 flex justify-between items-center">
+        <h1 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <i data-lucide="rocket" class="text-indigo-600"></i> NovaHR OS
+        </h1>
+        <button id="mobile-menu-btn" class="text-slate-600">
+            <i data-lucide="menu"></i>
+        </button>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 overflow-y-auto p-4 md:p-8 pt-20 md:pt-8 relative bg-slate-50/50">
+        
+        <!-- Section: Mission Control -->
+        <div id="mission-control" class="content-section fade-in">
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-slate-900">Mission Control</h2>
+                <p class="text-slate-500 mt-2">The core philosophy and operational roles for the $2M Seed Round.</p>
+            </div>
+
+            <!-- Philosophy Card -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8">
+                <div class="flex items-start gap-4">
+                    <div class="p-3 bg-indigo-50 rounded-lg text-indigo-600">
+                        <i data-lucide="git-commit" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900">Philosophy: Lines, not Dots</h3>
+                        <p class="text-slate-600 mt-2 leading-relaxed">
+                            Fundraising is a momentum game. Isolated meetings ("dots") do not raise capital. Consistent, high-frequency updates and progress tracking build the "line" that investors buy into.
+                        </p>
+                        <div class="mt-4 p-3 bg-slate-50 rounded border border-slate-200 text-sm font-medium text-slate-700">
+                            Core Principle: "If it is not in the Portal, it did not happen."
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Roles & Responsibilities Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Multiples (Push) -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+                    <div class="bg-slate-900 p-4 flex justify-between items-center">
+                        <h3 class="text-white font-bold flex items-center gap-2">
+                            <i data-lucide="arrow-right-circle" class="w-5 h-5"></i> Multiples (The Push)
+                        </h3>
+                    </div>
+                    <div class="p-6 flex-1">
+                        <ul class="space-y-4">
+                            <li class="flex gap-3">
+                                <span class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xs">1</span>
+                                <div>
+                                    <h4 class="font-bold text-slate-900 text-sm">Sourcing Engine</h4>
+                                    <p class="text-xs text-slate-500 mt-1">Identify & add 15 quality investor prospects weekly.</p>
+                                </div>
+                            </li>
+                            <li class="flex gap-3">
+                                <span class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xs">2</span>
+                                <div>
+                                    <h4 class="font-bold text-slate-900 text-sm">Data Preparation</h4>
+                                    <p class="text-xs text-slate-500 mt-1">Pre-populate key data (Name, Fund, Thesis) before you see it.</p>
+                                </div>
+                            </li>
+                            <li class="flex gap-3">
+                                <span class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xs">3</span>
+                                <div>
+                                    <h4 class="font-bold text-slate-900 text-sm">Unblocking</h4>
+                                    <p class="text-xs text-slate-500 mt-1">Intervene if deals are stuck or require technical support.</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- NovaHR Team (Pull) -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+                    <div class="bg-indigo-600 p-4 flex justify-between items-center">
+                        <h3 class="text-white font-bold flex items-center gap-2">
+                            <i data-lucide="user-check" class="w-5 h-5"></i> NovaHR Team (The Pull)
+                        </h3>
+                    </div>
+                    <div class="p-6 flex-1">
+                        <ul class="space-y-4">
+                            <li class="flex gap-3">
+                                <span class="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold text-xs">1</span>
+                                <div>
+                                    <h4 class="font-bold text-slate-900 text-sm">Execution</h4>
+                                    <p class="text-xs text-slate-500 mt-1">Mohamed Hassan leads outreach. You handle messaging & meetings.</p>
+                                </div>
+                            </li>
+                            <li class="flex gap-3">
+                                <span class="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold text-xs">2</span>
+                                <div>
+                                    <h4 class="font-bold text-slate-900 text-sm">Network Injection</h4>
+                                    <p class="text-xs text-slate-500 mt-1">Add warm leads via "Add Investor" form. Check duplication first.</p>
+                                </div>
+                            </li>
+                            <li class="flex gap-3">
+                                <span class="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold text-xs">3</span>
+                                <div>
+                                    <h4 class="font-bold text-slate-900 text-sm">Discipline</h4>
+                                    <p class="text-xs text-slate-500 mt-1">Log outcomes within 2 hours. Update statuses immediately.</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: The Weekly Sprint -->
+        <div id="weekly-sprint" class="content-section hidden fade-in">
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-slate-900">The Weekly Sprint</h2>
+                <p class="text-slate-500 mt-2">Strict weekly cadence to maintain momentum without burnout.</p>
+            </div>
+
+            <!-- Sprint Visualization Chart -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8">
+                <h3 class="text-sm font-bold text-slate-700 mb-4 uppercase tracking-wider">Operational Rhythm</h3>
+                <div class="chart-container">
+                    <canvas id="sprintChart"></canvas>
+                </div>
+                <!-- Context for chart -->
+                <div class="mt-4 grid grid-cols-3 gap-4 text-center text-xs text-slate-500">
+                    <div>
+                        <strong class="block text-slate-700">Sunday</strong>
+                        Planning & Assignment
+                    </div>
+                    <div>
+                        <strong class="block text-slate-700">Mon-Wed</strong>
+                        High Volume Outreach
+                    </div>
+                    <div>
+                        <strong class="block text-slate-700">Thursday</strong>
+                        Cleanup & Review
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Sprint Checklist -->
+            <div class="space-y-4">
+                <!-- Sunday -->
+                <div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
+                    <div class="bg-slate-50 p-4 border-b border-slate-200 flex justify-between items-center cursor-pointer" onclick="toggleAccordion('sunday-content', 'sunday-icon')">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-blue-100 text-blue-600 rounded">
+                                <i data-lucide="map" class="w-4 h-4"></i>
+                            </div>
+                            <h3 class="font-bold text-slate-800">Sunday: Planning (The Setup)</h3>
+                        </div>
+                        <i data-lucide="chevron-down" id="sunday-icon" class="w-4 h-4 text-slate-400 transition-transform"></i>
+                    </div>
+                    <div id="sunday-content" class="p-4 bg-white">
+                        <ul class="space-y-3">
+                            <li class="flex items-start gap-3">
+                                <input type="checkbox" class="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                                <span class="text-sm text-slate-600"><strong>Multiples:</strong> Upload new prospect list by 10:00 AM.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <input type="checkbox" class="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                                <span class="text-sm text-slate-600"><strong>NovaHR:</strong> Review "New Prospects" view in portal.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <input type="checkbox" class="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                                <span class="text-sm text-slate-600"><strong>NovaHR:</strong> Assign owners (CEO/Co-founder).</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <input type="checkbox" class="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                                <span class="text-sm text-slate-600"><strong>NovaHR:</strong> Enrich with notes on mutual connections (Egypt/KSA ecosystem).</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Mon-Wed -->
+                <div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
+                    <div class="bg-slate-50 p-4 border-b border-slate-200 flex justify-between items-center cursor-pointer" onclick="toggleAccordion('mon-wed-content', 'mon-wed-icon')">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-indigo-100 text-indigo-600 rounded">
+                                <i data-lucide="zap" class="w-4 h-4"></i>
+                            </div>
+                            <h3 class="font-bold text-slate-800">Monday – Wednesday: Outreach (The Grind)</h3>
+                        </div>
+                        <i data-lucide="chevron-down" id="mon-wed-icon" class="w-4 h-4 text-slate-400 transition-transform"></i>
+                    </div>
+                    <div id="mon-wed-content" class="p-4 bg-white">
+                        <ul class="space-y-3">
+                            <li class="flex items-start gap-3">
+                                <input type="checkbox" class="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                                <span class="text-sm text-slate-600"><strong>Goal:</strong> Move assigned prospects to "Outreach" / "Connected".</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <input type="checkbox" class="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                                <span class="text-sm text-slate-600"><strong>Action:</strong> Execute Channel Strategy (LinkedIn -> Email).</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-600">RULE</span>
+                                <span class="text-sm text-slate-600">Do not let assigned leads sit untouched past Wednesday.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Thursday -->
+                <div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
+                    <div class="bg-slate-50 p-4 border-b border-slate-200 flex justify-between items-center cursor-pointer" onclick="toggleAccordion('thu-content', 'thu-icon')">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-amber-100 text-amber-600 rounded">
+                                <i data-lucide="check-circle" class="w-4 h-4"></i>
+                            </div>
+                            <h3 class="font-bold text-slate-800">Thursday: Review & Cleanup (Housekeeping)</h3>
+                        </div>
+                        <i data-lucide="chevron-down" id="thu-icon" class="w-4 h-4 text-slate-400 transition-transform"></i>
+                    </div>
+                    <div id="thu-content" class="p-4 bg-white">
+                        <ul class="space-y-3">
+                            <li class="flex items-start gap-3">
+                                <input type="checkbox" class="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                                <span class="text-sm text-slate-600"><strong>Follow-Up Sweep:</strong> Check "Action Required" view. Clear pending follow-ups.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <input type="checkbox" class="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                                <span class="text-sm text-slate-600"><strong>Update Multiples:</strong> Tag @Multiples in portal comments for blockers.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-600">RULE</span>
+                                <span class="text-sm text-slate-600">No new cold outreach today. Draft for Sunday instead.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Strategy & Toolkit -->
+        <div id="strategy-toolkit" class="content-section hidden fade-in">
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-slate-900">Strategy & Toolkit</h2>
+                <p class="text-slate-500 mt-2">Channel strategy and copy-paste templates customized for NovaHR.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Channel Strategy (Left Col) -->
+                <div class="lg:col-span-1 space-y-4">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 cursor-pointer hover:border-indigo-300 transition-all" onclick="selectTemplate('linkedin')">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Step 1</span>
+                            <i data-lucide="linkedin" class="w-4 h-4 text-blue-600"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-800">LinkedIn (Soft Opener)</h3>
+                        <p class="text-sm text-slate-500 mt-1">Goal: Connection & Awareness. Low friction.</p>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 cursor-pointer hover:border-indigo-300 transition-all" onclick="selectTemplate('teaser')">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Step 2</span>
+                            <i data-lucide="mail" class="w-4 h-4 text-indigo-600"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-800">Email (The Teaser)</h3>
+                        <p class="text-sm text-slate-500 mt-1">Goal: First Meeting. High signal. Tracked Link.</p>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 cursor-pointer hover:border-indigo-300 transition-all" onclick="selectTemplate('bump')">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Touch 2</span>
+                            <i data-lucide="bell-ring" class="w-4 h-4 text-amber-600"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-800">The Bump</h3>
+                        <p class="text-sm text-slate-500 mt-1">Transactional check-in. Day +4.</p>
+                    </div>
+                     <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 cursor-pointer hover:border-indigo-300 transition-all" onclick="selectTemplate('value-add')">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Touch 3</span>
+                            <i data-lucide="trending-up" class="w-4 h-4 text-green-600"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-800">Value Add</h3>
+                        <p class="text-sm text-slate-500 mt-1">Milestone update. Day +10.</p>
+                    </div>
+                </div>
+
+                <!-- Template Editor (Right Col) -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 h-full flex flex-col">
+                        <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-xl">
+                            <h3 class="font-bold text-slate-800" id="template-title">Select a template...</h3>
+                            <button onclick="copyTemplate()" class="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-300 rounded text-xs font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 transition-all">
+                                <i data-lucide="copy" class="w-3 h-3"></i> Copy Text
+                            </button>
+                        </div>
+                        <div class="p-6 flex-1 bg-slate-50/50">
+                            <div class="mb-4 grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 mb-1">Investor Name</label>
+                                    <input type="text" id="investor-name" placeholder="e.g., John" class="w-full text-sm p-2 border border-slate-200 rounded focus:ring-2 focus:ring-indigo-500 outline-none" oninput="updatePreview()">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 mb-1">Company/Firm</label>
+                                    <input type="text" id="firm-name" placeholder="e.g., Global Ventures" class="w-full text-sm p-2 border border-slate-200 rounded focus:ring-2 focus:ring-indigo-500 outline-none" oninput="updatePreview()">
+                                </div>
+                            </div>
+                            <div class="relative">
+                                <textarea id="template-text" class="w-full h-64 p-4 text-sm font-mono text-slate-700 bg-white border border-slate-200 rounded resize-none focus:ring-2 focus:ring-indigo-500 outline-none" readonly></textarea>
+                            </div>
+                            <p class="text-xs text-slate-400 mt-2 italic text-right" id="char-count"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Engine & Rules -->
+        <div id="engine-rules" class="content-section hidden fade-in">
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-slate-900">Engine & Rules</h2>
+                <p class="text-slate-500 mt-2">The operational logic that drives the fundraise.</p>
+            </div>
+
+            <!-- Traffic Light System -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <h3 class="font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <i data-lucide="traffic-cone" class="w-5 h-5 text-indigo-600"></i> The Traffic Light System
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-4 p-3 bg-green-50 rounded-lg border border-green-100">
+                            <div class="w-4 h-4 rounded-full bg-green-500 shadow-sm ring-2 ring-green-200"></div>
+                            <div>
+                                <span class="block text-sm font-bold text-green-800">Green (< 5 days)</span>
+                                <span class="text-xs text-green-600">Investor is active or just contacted. Hidden from "Action Required".</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4 p-3 bg-red-50 rounded-lg border border-red-100">
+                            <div class="w-4 h-4 rounded-full bg-red-500 shadow-sm ring-2 ring-red-200 animate-pulse"></div>
+                            <div>
+                                <span class="block text-sm font-bold text-red-800">Red (> 5 days)</span>
+                                <span class="text-xs text-red-600">Stagnant deal. <strong>Action Required:</strong> Send Bump or Value-Add.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3-Touch Rule -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <h3 class="font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <i data-lucide="list-checks" class="w-5 h-5 text-indigo-600"></i> The 3-Touch Rule
+                    </h3>
+                    <div class="relative pl-4 border-l-2 border-slate-200 space-y-6">
+                        <div class="relative">
+                            <div class="absolute -left-[21px] top-1 w-3 h-3 rounded-full bg-indigo-600 border-2 border-white"></div>
+                            <h4 class="text-sm font-bold text-slate-800">Touch 1: The Pitch</h4>
+                            <p class="text-xs text-slate-500">Initial Teaser + Deck.</p>
+                        </div>
+                        <div class="relative">
+                            <div class="absolute -left-[21px] top-1 w-3 h-3 rounded-full bg-amber-500 border-2 border-white"></div>
+                            <h4 class="text-sm font-bold text-slate-800">Touch 2: The Bump (Day +4)</h4>
+                            <p class="text-xs text-slate-500">Short, transactional check-in.</p>
+                        </div>
+                        <div class="relative">
+                            <div class="absolute -left-[21px] top-1 w-3 h-3 rounded-full bg-green-500 border-2 border-white"></div>
+                            <h4 class="text-sm font-bold text-slate-800">Touch 3: Value Add (Day +10)</h4>
+                            <p class="text-xs text-slate-500">Share new win/milestone.</p>
+                        </div>
+                        <div class="relative">
+                            <div class="absolute -left-[21px] top-1 w-3 h-3 rounded-full bg-slate-400 border-2 border-white"></div>
+                            <h4 class="text-sm font-bold text-slate-800">No Reply? -> Nurture</h4>
+                            <p class="text-xs text-slate-500">Move to long-term mailing list.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Portal Definitions -->
+             <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <h3 class="font-bold text-slate-900 mb-4">Portal Status Definitions</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
+                    <div class="p-3 bg-slate-50 rounded border border-slate-200 text-center">
+                        <span class="block text-xs font-bold uppercase text-slate-500 mb-1">Stage 1</span>
+                        <strong class="text-sm text-slate-800">Prospect</strong>
+                        <span class="block text-[10px] text-slate-400">Identified, not contacted</span>
+                    </div>
+                    <div class="p-3 bg-blue-50 rounded border border-blue-100 text-center">
+                        <span class="block text-xs font-bold uppercase text-blue-500 mb-1">Stage 2</span>
+                        <strong class="text-sm text-blue-800">Outreach</strong>
+                        <span class="block text-[10px] text-blue-400">Message sent</span>
+                    </div>
+                    <div class="p-3 bg-indigo-50 rounded border border-indigo-100 text-center">
+                        <span class="block text-xs font-bold uppercase text-indigo-500 mb-1">Stage 3</span>
+                        <strong class="text-sm text-indigo-800">Meeting</strong>
+                        <span class="block text-[10px] text-indigo-400">Call booked</span>
+                    </div>
+                    <div class="p-3 bg-amber-50 rounded border border-amber-100 text-center">
+                        <span class="block text-xs font-bold uppercase text-amber-500 mb-1">Stage 4</span>
+                        <strong class="text-sm text-amber-800">Due Diligence</strong>
+                        <span class="block text-[10px] text-amber-400">Data Room Review</span>
+                    </div>
+                    <div class="p-3 bg-slate-100 rounded border border-slate-200 text-center">
+                        <span class="block text-xs font-bold uppercase text-slate-500 mb-1">Stage 5</span>
+                        <strong class="text-sm text-slate-800">Pass</strong>
+                        <span class="block text-[10px] text-slate-400">Hard No (Log Reason)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // --- Navigation Logic ---
+        function navigate(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('fade-in');
+            });
+            
+            // Show target section
+            const target = document.getElementById(sectionId);
+            target.classList.remove('hidden');
+            void target.offsetWidth; // Trigger reflow for animation
+            target.classList.add('fade-in');
+
+            // Update Sidebar
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active-nav'));
+            document.getElementById('nav-' + sectionId).classList.add('active-nav');
+            
+            // Scroll to top
+            document.querySelector('main').scrollTop = 0;
+        }
+
+        // --- Accordion Logic ---
+        function toggleAccordion(contentId, iconId) {
+            const content = document.getElementById(contentId);
+            const icon = document.getElementById(iconId);
+            
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                icon.classList.add('rotate-180');
+            } else {
+                content.classList.add('hidden');
+                icon.classList.remove('rotate-180');
+            }
+        }
+
+        // --- Mobile Menu ---
+        document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+            const aside = document.querySelector('aside');
+            aside.classList.toggle('hidden');
+            aside.classList.toggle('absolute');
+            aside.classList.toggle('h-full');
+            aside.classList.toggle('w-full');
+        });
+
+        // --- Chart.js Implementation ---
+        // Visualization Choice: A Bar chart representing the "Intensity" of tasks per day to visualize the Pulse.
+        document.addEventListener('DOMContentLoaded', () => {
+            const ctx = document.getElementById('sprintChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+                    datasets: [{
+                        label: 'Operational Intensity',
+                        data: [60, 90, 90, 90, 40, 0, 0],
+                        backgroundColor: [
+                            'rgba(99, 102, 241, 0.5)', // Sun - Indigo
+                            'rgba(79, 70, 229, 0.8)', // Mon - Darker Indigo
+                            'rgba(79, 70, 229, 0.8)', // Tue
+                            'rgba(79, 70, 229, 0.8)', // Wed
+                            'rgba(245, 158, 11, 0.7)', // Thu - Amber (Cleanup)
+                            'rgba(203, 213, 225, 0.3)', // Fri - Slate
+                            'rgba(203, 213, 225, 0.3)'  // Sat
+                        ],
+                        borderColor: [
+                            'rgb(99, 102, 241)',
+                            'rgb(79, 70, 229)',
+                            'rgb(79, 70, 229)',
+                            'rgb(79, 70, 229)',
+                            'rgb(245, 158, 11)',
+                            'rgb(203, 213, 225)',
+                            'rgb(203, 213, 225)'
+                        ],
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const labels = [
+                                        "Planning & Assignment",
+                                        "Outreach Grind",
+                                        "Outreach Grind",
+                                        "Outreach Grind (Deadline)",
+                                        "Cleanup & Follow-ups",
+                                        "Rest",
+                                        "Rest"
+                                    ];
+                                    return labels[context.dataIndex];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { display: false }, // Hide numbers, keep concept
+                            grid: { display: false }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+            
+            // Initialize default template
+            selectTemplate('linkedin');
+            lucide.createIcons();
+        });
+
+        // --- Template Toolkit Logic ---
+        const templates = {
+            linkedin: {
+                title: "LinkedIn Note",
+                raw: "Hi [Name], following your focus on MENA SaaS. We’re building NovaHR—a localized HR/ERP suite for Egypt & KSA. We’re currently operating at 88% gross margins with a $2.7B market opportunity. Would love to connect and share our Seed deck."
+            },
+            teaser: {
+                title: "Teaser Email",
+                raw: "Subject: NovaHR Systems: $2M Seed | Localized HR-Tech for MENA ($5M+ Year 1 Rev)\n\nHi [Name],\n\nI'm Mohamed, CEO of NovaHR. We are digitizing human capital management for the 1.9M+ SMEs in Egypt and Saudi Arabia.\n\nWhy NovaHR is the regional winner:\n* Economics: 88% Gross Profit Margins and 30% Net Profit projected.\n* Traction: Projected $5.08M Revenue in 2026 with a scalable SaaS + On-Premise model.\n* The Moat: Deep localization for Arabic labor laws and compliance—high entry barriers for global incumbents.\n* The Opportunity: A $2.7B TAM across Egypt and KSA by 2030.\n\nWe are raising a $2M Seed Round to accelerate our KSA expansion and finalize our NovaERP suite.\n\nAre you open to a 15-minute call next Tuesday or Wednesday to see why localized ERP is the next big play in MENA?\n\nBest,\nMohamed Hassan"
+            },
+            bump: {
+                title: "Bump Email",
+                raw: "Subject: Re: NovaHR Systems: $2M Seed\n\nHi [Name],\n\nJust wanted to bring this to the top of your inbox. We just passed a major milestone in our NovaERP development roadmap and would love to factor that into a conversation.\n\nDo you have time for a quick chat this week?\n\nBest,\nMohamed"
+            },
+            'value-add': {
+                title: "Value-Add Email",
+                raw: "Subject: NovaHR Update: $2.02B SAM Opportunity in Egypt\n\nHi [Name],\n\nAs we continue our Seed conversations, I wanted to share a specific insight into our $2.02B SAM in Egypt. Our recent adoption data shows SMEs are switching to NovaHR primarily due to our localized compliance features that SAP/Workday cannot match.\n\nThought this might be useful for your internal notes.\n\nBest,\nMohamed"
+            }
+        };
+
+        let currentTemplateKey = 'linkedin';
+
+        function selectTemplate(key) {
+            currentTemplateKey = key;
+            document.getElementById('template-title').textContent = templates[key].title;
+            updatePreview();
+        }
+
+        function updatePreview() {
+            const name = document.getElementById('investor-name').value || "[Investor Name]";
+            // Simple replace logic
+            let text = templates[currentTemplateKey].raw.replace(/\[Name\]/g, name).replace(/\[Investor Name\]/g, name);
+            
+            document.getElementById('template-text').value = text;
+            document.getElementById('char-count').textContent = text.length + " characters";
+        }
+
+        function copyTemplate() {
+            const textarea = document.getElementById('template-text');
+            textarea.select();
+            document.execCommand('copy');
+            
+            const btn = document.querySelector('button[onclick="copyTemplate()"]');
+            const originalHTML = btn.innerHTML;
+            
+            btn.innerHTML = '<i data-lucide="check" class="w-3 h-3"></i> Copied!';
+            btn.classList.add('bg-green-50', 'text-green-600', 'border-green-200');
+            btn.classList.remove('hover:bg-indigo-50', 'hover:text-indigo-600');
+            
+            lucide.createIcons();
+            
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.classList.remove('bg-green-50', 'text-green-600', 'border-green-200');
+                btn.classList.add('hover:bg-indigo-50', 'hover:text-indigo-600');
+                lucide.createIcons();
+            }, 2000);
+        }
+
+    </script>
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. (Lucide used via JS script tag, charts via Chart.js canvas) -->
+</body>
+</html>
+
